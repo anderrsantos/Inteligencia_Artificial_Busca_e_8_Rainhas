@@ -56,12 +56,21 @@ int main() {
 
     std::cout << "=========================================\n";
 
-    breadth_first_search(problem);
-
+    std::vector<std::string> path = breadth_first_search(problem);
     auto end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end_time - start_time;
 
-    std::chrono::duration<double> elapsed = end_time - start_time;
-    std::cout << "Tempo de execução: " << elapsed.count() << " segundos" << std::endl;
+    std::cout << "Tempo de execução: " << duration.count() << " segundos" << std::endl;  
+
+    if(path.empty()) {
+        std::cout << "Nenhum caminho encontrado do estado inicial ao estado objetivo." << std::endl;
+    } else {
+        std::cout << "Caminho encontrado do estado inicial ao estado objetivo:" << std::endl;
+        for (const auto &action : path) {
+            std::cout << action << " ";
+        }
+        std::cout << std::endl;
+    }
     std::cout << "=========================================\n"<< std::endl;
 
 

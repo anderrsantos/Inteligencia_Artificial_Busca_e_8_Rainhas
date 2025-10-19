@@ -122,16 +122,13 @@ std::vector<std::string> breadth_first_search(const Problem &problem) {
 
                     max_memory = std::max(max_memory, frontier.size() + explored.size());
                     std::cout << "Busca em Largura (BFS) concluída." << std::endl;
+
                     std::cout << "Máxima memória utilizada: " << max_memory << " nós" << std::endl;
                     
                     std::cout << "Nós gerados: " << nodes_generated << std::endl;
                     std::cout << "Nós expandidos: " << nodes_expanded << std::endl;
 
                     std::cout << "Custo do caminho: " << child->path_cost << std::endl;
-                    std::cout << "Caminho encontrado: ";
-
-                    for (auto &a : solution(child)) std::cout << a << " ";
-                        std::cout << std::endl;
 
                     return solution(child);
                 }
@@ -141,13 +138,7 @@ std::vector<std::string> breadth_first_search(const Problem &problem) {
         }
     }
     max_memory = std::max(max_memory, frontier.size() + explored.size());
-    std::cout << "Busca em Largura (BFS) concluída." << std::endl;
-    std::cout << "Máxima memória utilizada: " << max_memory << " nós" << std::endl;
-    
-    std::cout << "Nós gerados: " << nodes_generated << std::endl;
-    std::cout << "Nós expandidos: " << nodes_expanded << std::endl;
 
-    std::cout << "Nenhum caminho encontrado." << std::endl;
     return {}; 
 }
 
