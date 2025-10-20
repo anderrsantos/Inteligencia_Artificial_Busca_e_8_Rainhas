@@ -1,4 +1,4 @@
-#include "BG.hpp"
+#include "BFS.hpp"
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -6,7 +6,8 @@
 
 #include <chrono>
 
-std::string arquivo = "../../data/labirinto.txt";
+
+std::string arquivo = "../data/labirinto.txt";
 
 // Lê o mapa do arquivo e inicializa os estados inicial e objetivo
 void readMap(Problem &problem) {
@@ -27,10 +28,10 @@ void readMap(Problem &problem) {
             if (ch == ' ') continue;
 
             if (ch == 'S' || ch == 's') {
-                problem.start = {j, i};
+                problem.initial_state = {j, i};
                 row.push_back(0);
             } else if (ch == 'G' || ch == 'g') {
-                problem.goal = {j, i};
+                problem.goal_state = {j, i};
                 row.push_back(0);
             } else if (ch == '#') {
                 row.push_back(1);
@@ -49,29 +50,20 @@ void readMap(Problem &problem) {
 
 int main() {
     Problem problem;
-
     readMap(problem);
  
     auto start_time = std::chrono::high_resolution_clock::now();
 
-
     std::cout << "=========================================\n";
 
-    std::vector<std::string> path = greedy_best_first_search(problem);
+    breadth_first_search(problem);
 
-    auto end_time =  std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> duration = end_time - start_time;
-    //auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time-start_time).count();
-   
-    std::cout << "Tempo de execução: " << duration.count() << " ms" << std::endl;
-    if(path.empty()) {
-        std::cout << "Nenhum caminho encontrado." << std::endl;
-    } else {
-        std::cout << "Caminho encontrado: ";
-        for (auto &a : path) std::cout << a << " ";
-        std::cout << std::endl;
-    }
-    std::cout << "=========================================\n";
+    auto end_time = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double> elapsed = end_time - start_time;
+    std::cout << "Tempo de execução: " << elapsed.count() << " segundos" << std::endl;
+    std::cout << "=========================================\n"<< std::endl;
+
 
     return 0;
 }
