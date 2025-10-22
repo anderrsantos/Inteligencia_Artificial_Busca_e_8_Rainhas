@@ -78,8 +78,8 @@ int manhattan_distance(const State& a, const State& b) {
     return abs(a.x - b.x) + abs(a.y - b.y);
 }
 
-// Algoritmo A*
-std::vector<std::string> a_star_search(const Problem &problem) {
+// Algoritmo A* manhattan
+std::vector<std::string> a_star_search_manhattan(const Problem &problem) {
     size_t max_memory = 0;
     int nodes_generated = 0;
     int nodes_expanded = 0;
@@ -121,13 +121,7 @@ std::vector<std::string> a_star_search(const Problem &problem) {
             std::cout << "Custo ótimo encontrado: " << node->path_cost << "\n";
             std::cout << "Caminho encontrado: ";
             
-            auto path = solution(node);
-            for (auto &action : path) {
-                std::cout << action << " ";
-            }
-            std::cout << std::endl;
-            
-            return path;
+            return solution(node);
         }
 
         explored.insert(node->state);
@@ -148,6 +142,80 @@ std::vector<std::string> a_star_search(const Problem &problem) {
                 if (frontier_costs[child_state] <= child_g) {
                     continue;  // Já temos um caminho melhor ou igual
                 }
+            }
+
+            Node* child = new Node(child_state, node, action, child_g, child_h);
+            nodes_generated++;
+
+            frontier.push(child);
+            frontier_costs[child_state] = child_g;
+        }
+
+        max_memory = std::max(max_memory, frontier.size() + explored.size());
+    }
+
+    std::cout << "A* falhou: nenhum caminho encontrado.\n";
+    std::cout << "Nós gerados: " << nodes_generated << "\n";
+    std::cout << "Nós expandidos: " << nodes_expanded << "\n";
+    std::cout << "Máxima memória usada: " << max_memory << " nós\n";
+    return {};
+}
+
+// Algoritmo A* euclidiana
+std::vector<std::string> a_star_search_euclidiana(const Problem &problem) {
+    size_t max_memory = 0;
+    int nodes_generated = 0;
+    int nodes_expanded = 0;
+
+    auto cmp = [](Node* a, Node* b) {
+        if (a->total_cost != b->total_cost)
+            return a->total_cost > b->total_cost;
+        return a->heuristic > b->heuristic;
+    };
+
+    auto euclidean_distance = [](const State& a, const State& b) {
+        return std::sqrt(std::pow(a.x - b.x, 2) + std::pow(a.y - b.y, 2));
+    };
+
+    Node* root = new Node(problem.start, nullptr, "", 0, euclidean_distance(problem.start, problem.goal));
+    nodes_generated++;
+
+    std::priority_queue<Node*, std::vector<Node*>, decltype(cmp)> frontier(cmp);
+    frontier.push(root);
+
+    std::map<State, double> frontier_costs;
+    std::set<State> explored;
+    frontier_costs[root->state] = root->path_cost;
+
+    while (!frontier.empty()) {
+        Node* node = frontier.top();
+        frontier.pop();
+        nodes_expanded++;
+
+        if (problem.goal_test(node->state)) {
+            max_memory = std::max(max_memory, frontier.size() + explored.size());
+            std::cout << "A* (Euclidiana) concluído com sucesso!\n";
+            std::cout << "Nós gerados: " << nodes_generated << "\n";
+            std::cout << "Nós expandidos: " << nodes_expanded << "\n";
+            std::cout << "Máxima memória usada: " << max_memory << " nós\n";
+            std::cout << "Custo ótimo encontrado: " << node->path_cost << "\n";
+            return solution(node);
+        }
+
+        explored.insert(node->state);
+        frontier_costs.erase(node->state);
+
+        for (auto &action_pair : problem.actions(node->state)) {
+            std::string action = action_pair.first;
+            State child_state = action_pair.second;
+
+            if (explored.count(child_state)) continue;
+
+            int child_g = node->path_cost + 1;
+            double child_h = euclidean_distance(child_state, problem.goal);
+
+            if (frontier_costs.find(child_state) != frontier_costs.end()) {
+                if (frontier_costs[child_state] <= child_g) continue;
             }
 
             Node* child = new Node(child_state, node, action, child_g, child_h);

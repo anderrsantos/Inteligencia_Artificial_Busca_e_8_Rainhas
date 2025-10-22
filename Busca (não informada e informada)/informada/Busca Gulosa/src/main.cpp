@@ -49,29 +49,43 @@ void readMap(Problem &problem) {
 
 int main() {
     Problem problem;
-
     readMap(problem);
  
+    std::cout << "=========================================\n";
+    std::cout << "Busca Gulosa - Heurística Manhattan\n";
     auto start_time = std::chrono::high_resolution_clock::now();
 
-
-    std::cout << "=========================================\n";
-
-    std::vector<std::string> path = greedy_best_first_search(problem);
+    std::vector<std::string> path = greedy_best_first_search_manhattan(problem);
 
     auto end_time =  std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end_time - start_time;
-    //auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time-start_time).count();
    
-    std::cout << "Tempo de execução: " << duration.count() << " ms" << std::endl;
-    if(path.empty()) {
+    std::cout << "Tempo de execução: " << duration.count() << " s" << std::endl;
+    if (path.empty()) {
         std::cout << "Nenhum caminho encontrado." << std::endl;
     } else {
         std::cout << "Caminho encontrado: ";
         for (auto &a : path) std::cout << a << " ";
         std::cout << std::endl;
     }
-    std::cout << "=========================================\n";
 
+    std::cout << "=========================================\n";
+    std::cout << "Busca Gulosa - Heurística Euclidiana\n";
+
+    auto start_time2 = std::chrono::high_resolution_clock::now();
+    path = greedy_best_first_search_euclidiana(problem);
+    auto end_time2 = std::chrono::high_resolution_clock::now();
+    duration = end_time2 - start_time2;
+
+    std::cout << "Tempo de execução: " << duration.count() << " s" << std::endl;
+    if (path.empty()) {
+        std::cout << "Nenhum caminho encontrado." << std::endl;
+    } else {
+        std::cout << "Caminho encontrado: ";
+        for (auto &a : path) std::cout << a << " ";
+        std::cout << std::endl;
+    }
+
+    std::cout << "=========================================\n";
     return 0;
 }

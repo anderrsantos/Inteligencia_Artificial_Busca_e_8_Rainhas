@@ -52,15 +52,43 @@ int main() {
     auto start_time = std::chrono::high_resolution_clock::now();
 
     std::cout << "=========================================\n";
-    std::cout << "Executando A*...\n";
+    std::cout << "Executando A* manhattan...\n";
 
-    a_star_search(problem);
+    auto path = a_star_search_manhattan(problem);
 
     auto end_time = std::chrono::high_resolution_clock::now();
 
-    std::chrono::duration<double> elapsed = end_time - start_time;
-    std::cout << "Tempo de execução: " << elapsed.count() << " segundos" << std::endl;
+    std::chrono::duration<double> duration = end_time - start_time;
+
+    std::cout << "Tempo de execução: " << duration.count() << " s" << std::endl;
+    if (path.empty()) {
+        std::cout << "Nenhum caminho encontrado." << std::endl;
+    } else {
+        std::cout << "Caminho encontrado: ";
+        for (auto &a : path) std::cout << a << " ";
+        std::cout << std::endl;
+    }
+
     std::cout << "=========================================\n"<< std::endl;
+    std::cout << "Executando A* euclidiana...\n";
+
+    auto start_time2 = std::chrono::high_resolution_clock::now();
+    path = a_star_search_euclidiana(problem);
+    auto end_time2 = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double> duration2 = end_time2 - start_time2;
+    std::cout << "Tempo de execução: " << duration2.count() << " s" << std::endl;
+    
+    if (path.empty()) {
+        std::cout << "Nenhum caminho encontrado." << std::endl;
+    } else {
+        std::cout << "Caminho encontrado: ";
+        for (auto &a : path) std::cout << a << " ";
+        std::cout << std::endl;
+    }
+    std::cout << "=========================================\n"<< std::endl;
+
+
 
     return 0;
 }

@@ -68,8 +68,8 @@ std::vector<std::string> solution(Node* node) {
 }
 
 
-// Busca Gulosa 
-std::vector<std::string> greedy_best_first_search(const Problem &problem) {
+// Busca Gulosa manhattan
+std::vector<std::string> greedy_best_first_search_manhattan(const Problem &problem) {
     size_t max_memory = 0;
     int nodes_generated = 0;
     int nodes_expanded = 0;
@@ -118,6 +118,65 @@ std::vector<std::string> greedy_best_first_search(const Problem &problem) {
             nodes_generated++;
 
             int h = h_manhattan(child_state, problem.goal);
+            frontier.push({h, child});
+        }
+
+        max_memory = std::max(max_memory, frontier.size() + explored.size());
+    }
+
+    std::cout << "Falha: nenhum caminho encontrado.\n";
+    return {};
+}
+
+// Busca Gulosa euclidiana
+std::vector<std::string> greedy_best_first_search_euclidiana(const Problem &problem) {
+    size_t max_memory = 0;
+    int nodes_generated = 0;
+    int nodes_expanded = 0;
+
+    Node* root = new Node{problem.start, nullptr, "", 0};
+
+    auto h_euclidiana = [](const State& a, const State& b) {
+        return std::sqrt(std::pow(a.x - b.x, 2) + std::pow(a.y - b.y, 2));
+    };
+
+    // Fila de prioridade (menor h(n) tem maior prioridade)
+    auto cmp = [](const std::pair<double, Node*>& a, const std::pair<double, Node*>& b) {
+        return a.first > b.first;
+    };
+    std::priority_queue<std::pair<double, Node*>, std::vector<std::pair<double, Node*>>, decltype(cmp)> frontier(cmp);
+
+    frontier.push({h_euclidiana(root->state, problem.goal), root});
+    std::set<State> explored;
+
+    while (!frontier.empty()) {
+        Node* node = frontier.top().second;
+        frontier.pop();
+        nodes_expanded++;
+
+        // Teste de objetivo
+        if (problem.goal_test(node->state)) {
+            max_memory = std::max(max_memory, frontier.size() + explored.size());
+            std::cout << "Busca Gulosa concluída com sucesso!\n";
+            std::cout << "Nós gerados: " << nodes_generated << "\n";
+            std::cout << "Nós expandidos: " << nodes_expanded << "\n";
+            std::cout << "Máxima memória usada: " << max_memory << " nós\n";
+            return solution(node);
+        }
+
+        explored.insert(node->state);
+
+        // Expande os vizinhos
+        for (auto &action_pair : problem.actions(node->state)) {
+            std::string action = action_pair.first;
+            State child_state = action_pair.second;
+
+            if (explored.count(child_state)) continue;
+
+            Node* child = new Node{child_state, node, action, node->path_cost + 1};
+            nodes_generated++;
+
+            double h = h_euclidiana(child_state, problem.goal);
             frontier.push({h, child});
         }
 

@@ -100,8 +100,8 @@ g++ -o astar main.cpp
 Para executar todos os algoritmos e gerar uma análise comparativa:
 
 ```bash
-# No diretório raiz do projeto
-g++ -o out/comparador comparador_algoritmos.cpp
+cd "Busca (não informada e informada)"
+g++ -o out/comparador main_comparar.cpp
 ./out/comparador
 ```
 

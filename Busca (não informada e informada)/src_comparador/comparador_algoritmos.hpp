@@ -1,3 +1,6 @@
+#ifndef COMPARADOR_ALGORITMOS_HPP
+#define COMPARADOR_ALGORITMOS_HPP
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -85,6 +88,9 @@ std::vector<std::string> solution(Node* node) {
     return path;
 }
 
+// =================================================
+// Busca Não Informada
+// =================================================
 // Implementação BFS
 std::vector<std::string> breadth_first_search(const Problem &problem, AlgorithmResults &results) {
     auto start_time = std::chrono::high_resolution_clock::now();
@@ -254,13 +260,196 @@ std::vector<std::string> depth_first_search(const Problem &problem, AlgorithmRes
     return {};
 }
 
+// =================================================
+// =================================================
+// Busca Informada
+// =================================================
+int euclidean_distance(const State& a, const State& b) {
+    return std::sqrt(std::pow(a.x - b.x, 2) + std::pow(a.y - b.y, 2));
+}
+
+// Algoritmo de Busca Gulosa com heurística Euclidiana
+std::vector<std::string> greedy_search_euclidiana(const Problem &problem, AlgorithmResults &results) {
+    auto start_time = std::chrono::high_resolution_clock::now();
+    
+    size_t max_memory = 0;
+    int nodes_generated = 0;
+    int nodes_expanded = 0;
+
+    Node* root = new Node(problem.initial_state);
+    nodes_generated++;
+
+    auto cmp = [](const std::pair<double, Node*>& a, const std::pair<double, Node*>& b) {
+        return a.first > b.first; // menor heurística = maior prioridade
+    };
+    std::priority_queue<std::pair<double, Node*>, std::vector<std::pair<double, Node*>>, decltype(cmp)> frontier(cmp);
+
+    auto euclidean_distance = [](const State& a, const State& b) {
+        return std::sqrt(std::pow(a.x - b.x, 2) + std::pow(a.y - b.y, 2));
+    };
+
+    frontier.push({euclidean_distance(root->state, problem.goal_state), root});
+    std::set<State> explored;
+
+    while (!frontier.empty()) {
+        Node* node = frontier.top().second;
+        frontier.pop();
+        nodes_expanded++;
+
+        if (problem.goal_test(node->state)) {
+            max_memory = std::max(max_memory, frontier.size() + explored.size());
+            
+            auto end_time = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> elapsed = end_time - start_time;
+            
+            results.execution_time = elapsed.count();
+            results.max_memory = max_memory;
+            results.nodes_generated = nodes_generated;
+            results.nodes_expanded = nodes_expanded;
+            results.path_cost = node->path_cost;
+            results.found_solution = true;
+            results.is_optimal = false; // Busca Gulosa não é ótima
+            results.path = solution(node);
+            
+            return results.path;
+        }
+
+        explored.insert(node->state);
+
+        for (auto &action_pair : problem.actions(node->state)) {
+            std::string action = action_pair.first;
+            State child_state = action_pair.second;
+
+            if (explored.count(child_state)) continue;
+
+            Node* child = new Node(child_state, node, action, node->path_cost + 1);
+            nodes_generated++;
+
+            double h = euclidean_distance(child_state, problem.goal_state);
+            frontier.push({h, child});
+        }
+
+        max_memory = std::max(max_memory, frontier.size() + explored.size());
+    }
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end_time - start_time;
+    
+    results.execution_time = elapsed.count();
+    results.max_memory = max_memory;
+    results.nodes_generated = nodes_generated;
+    results.nodes_expanded = nodes_expanded;
+    results.found_solution = false;
+    results.is_optimal = false;
+    
+    return {};
+}
+
+// Algoritmo A* com heurística Euclidiana
+std::vector<std::string> a_star_search_euclidiana(const Problem &problem, AlgorithmResults &results) {
+    auto start_time = std::chrono::high_resolution_clock::now();
+    
+    size_t max_memory = 0;
+    int nodes_generated = 0;
+    int nodes_expanded = 0;
+
+    struct NodeWithCost {
+        Node* node;
+        double f_cost;
+        double h_cost;
+        NodeWithCost(Node* n, double f, double h) : node(n), f_cost(f), h_cost(h) {}
+    };
+
+    auto cmp = [](const NodeWithCost& a, const NodeWithCost& b) {
+        if (a.f_cost != b.f_cost) return a.f_cost > b.f_cost;
+        return a.h_cost > b.h_cost;
+    };
+
+    auto euclidean_distance = [](const State& a, const State& b) {
+        return std::sqrt(std::pow(a.x - b.x, 2) + std::pow(a.y - b.y, 2));
+    };
+
+    double h_start = euclidean_distance(problem.initial_state, problem.goal_state);
+    Node* root = new Node(problem.initial_state);
+    nodes_generated++;
+
+    std::priority_queue<NodeWithCost, std::vector<NodeWithCost>, decltype(cmp)> frontier(cmp);
+    frontier.push(NodeWithCost(root, h_start, h_start));
+
+    std::map<State, double> frontier_costs;
+    std::set<State> explored;
+    frontier_costs[root->state] = root->path_cost;
+
+    while (!frontier.empty()) {
+        Node* node = frontier.top().node;
+        frontier.pop();
+        nodes_expanded++;
+
+        if (problem.goal_test(node->state)) {
+            max_memory = std::max(max_memory, frontier.size() + explored.size());
+            
+            auto end_time = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> elapsed = end_time - start_time;
+            
+            results.execution_time = elapsed.count();
+            results.max_memory = max_memory;
+            results.nodes_generated = nodes_generated;
+            results.nodes_expanded = nodes_expanded;
+            results.path_cost = node->path_cost;
+            results.found_solution = true;
+            results.is_optimal = true; // A* é ótimo
+            results.path = solution(node);
+            
+            return results.path;
+        }
+
+        explored.insert(node->state);
+        frontier_costs.erase(node->state);
+
+        for (auto &action_pair : problem.actions(node->state)) {
+            std::string action = action_pair.first;
+            State child_state = action_pair.second;
+
+            if (explored.count(child_state)) continue;
+
+            double child_g = node->path_cost + 1;
+            double child_h = euclidean_distance(child_state, problem.goal_state);
+
+            if (frontier_costs.find(child_state) != frontier_costs.end()) {
+                if (frontier_costs[child_state] <= child_g) continue;
+            }
+
+            Node* child = new Node(child_state, node, action, child_g);
+            nodes_generated++;
+
+            frontier.push(NodeWithCost(child, child_g + child_h, child_h));
+            frontier_costs[child_state] = child_g;
+        }
+
+        max_memory = std::max(max_memory, frontier.size() + explored.size());
+    }
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end_time - start_time;
+    
+    results.execution_time = elapsed.count();
+    results.max_memory = max_memory;
+    results.nodes_generated = nodes_generated;
+    results.nodes_expanded = nodes_expanded;
+    results.found_solution = false;
+    results.is_optimal = false;
+    
+    return {};
+}
+
+// =================================================
 // Heurística Manhattan
 int manhattan_distance(const State& a, const State& b) {
     return abs(a.x - b.x) + abs(a.y - b.y);
 }
 
-// Implementação Busca Gulosa
-std::vector<std::string> greedy_search(const Problem &problem, AlgorithmResults &results) {
+// Implementação Busca Gulosa (com distância Manhattan)
+std::vector<std::string> greedy_search_manhattan(const Problem &problem, AlgorithmResults &results) {
     auto start_time = std::chrono::high_resolution_clock::now();
     
     size_t max_memory = 0;
@@ -332,8 +521,8 @@ std::vector<std::string> greedy_search(const Problem &problem, AlgorithmResults 
     return {};
 }
 
-// Implementação A*
-std::vector<std::string> a_star_search(const Problem &problem, AlgorithmResults &results) {
+// Implementação A* com heurística Manhattan
+std::vector<std::string> a_star_search_manhattan(const Problem &problem, AlgorithmResults &results) {
     auto start_time = std::chrono::high_resolution_clock::now();
     
     size_t max_memory = 0;
@@ -428,155 +617,8 @@ std::vector<std::string> a_star_search(const Problem &problem, AlgorithmResults 
     return {};
 }
 
-// Função para ler o mapa
-void readMap(Problem &problem, const std::string &filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Erro ao abrir o arquivo: " << filename << std::endl;
-        exit(1);
-    }
+// =================================================
+// =================================================
 
-    std::string line;
-    int i = 0;
-    while (std::getline(file, line)) {
-        if (line.empty()) continue; 
-        std::vector<int> row;
 
-        for (int j = 0; j < (int)line.size(); ++j) {
-            char ch = line[j];
-            if (ch == ' ') continue;
-
-            if (ch == 'S' || ch == 's') {
-                problem.initial_state = {j, i};
-                row.push_back(0);
-            } else if (ch == 'G' || ch == 'g') {
-                problem.goal_state = {j, i};
-                row.push_back(0);
-            } else if (ch == '#') {
-                row.push_back(1);
-            } else {
-                row.push_back(0);
-            }
-        }
-        problem.map.push_back(row);
-        i++;
-    }
-    file.close();
-}
-
-void printResults(const std::vector<AlgorithmResults> &results) {
-    std::cout << "\n" << std::string(80, '=') << std::endl;
-    std::cout << "                    RESULTADOS COMPARATIVOS" << std::endl;
-    std::cout << std::string(80, '=') << std::endl;
-
-    // Cabeçalho da tabela
-    std::cout << std::left << std::setw(15) << "Algoritmo"
-              << std::setw(12) << "Tempo (s)"
-              << std::setw(10) << "Memória"
-              << std::setw(12) << "Nós Ger."
-              << std::setw(12) << "Nós Exp."
-              << std::setw(8) << "Custo"
-              << std::setw(10) << "Solução"
-              << std::setw(8) << "Ótimo" << std::endl;
-    
-    std::cout << std::string(80, '-') << std::endl;
-
-    for (const auto &result : results) {
-        std::cout << std::left << std::setw(15) << result.name
-                  << std::setw(12) << std::fixed << std::setprecision(6) << result.execution_time
-                  << std::setw(10) << result.max_memory
-                  << std::setw(12) << result.nodes_generated
-                  << std::setw(12) << result.nodes_expanded
-                  << std::setw(8) << (result.found_solution ? std::to_string(result.path_cost) : "N/A")
-                  << std::setw(10) << (result.found_solution ? "SIM" : "NÃO")
-                  << std::setw(8) << (result.is_optimal ? "SIM" : "NÃO") << std::endl;
-    }
-
-    std::cout << std::string(80, '=') << std::endl;
-    
-    // Análise comparativa
-    std::cout << "\nANÁLISE COMPARATIVA:\n" << std::endl;
-    
-    // Encontrar algoritmos que encontraram solução
-    std::vector<AlgorithmResults> successful;
-    for (const auto &r : results) {
-        if (r.found_solution) successful.push_back(r);
-    }
-    
-    if (!successful.empty()) {
-        // Melhor tempo
-        auto fastest = *std::min_element(successful.begin(), successful.end(),
-            [](const AlgorithmResults &a, const AlgorithmResults &b) {
-                return a.execution_time < b.execution_time;
-            });
-        
-        // Menor memória
-        auto least_memory = *std::min_element(successful.begin(), successful.end(),
-            [](const AlgorithmResults &a, const AlgorithmResults &b) {
-                return a.max_memory < b.max_memory;
-            });
-            
-        // Menor custo (ótimo)
-        auto optimal = *std::min_element(successful.begin(), successful.end(),
-            [](const AlgorithmResults &a, const AlgorithmResults &b) {
-                return a.path_cost < b.path_cost;
-            });
-
-        std::cout << "• Algoritmo mais rápido: " << fastest.name 
-                  << " (" << fastest.execution_time << "s)" << std::endl;
-        std::cout << "• Algoritmo com menor uso de memória: " << least_memory.name 
-                  << " (" << least_memory.max_memory << " nós)" << std::endl;
-        std::cout << "• Algoritmo(s) ótimo(s): ";
-        
-        for (const auto &r : successful) {
-            if (r.path_cost == optimal.path_cost) {
-                std::cout << r.name << " ";
-            }
-        }
-        std::cout << "(custo " << optimal.path_cost << ")" << std::endl;
-    }
-    
-    std::cout << std::endl;
-}
-
-int main() {
-    Problem problem;
-    readMap(problem, "labirinto.txt");
-
-    std::vector<AlgorithmResults> results;
-    
-    std::cout << "Executando comparação de algoritmos de busca no labirinto...\n" << std::endl;
-
-    // BFS
-    std::cout << "Executando BFS..." << std::endl;
-    AlgorithmResults bfs_result;
-    bfs_result.name = "BFS";
-    breadth_first_search(problem, bfs_result);
-    results.push_back(bfs_result);
-
-    // DFS  
-    std::cout << "Executando DFS..." << std::endl;
-    AlgorithmResults dfs_result;
-    dfs_result.name = "DFS";
-    depth_first_search(problem, dfs_result);
-    results.push_back(dfs_result);
-
-    // Busca Gulosa
-    std::cout << "Executando Busca Gulosa..." << std::endl;
-    AlgorithmResults greedy_result;
-    greedy_result.name = "Gulosa";
-    greedy_search(problem, greedy_result);
-    results.push_back(greedy_result);
-
-    // A*
-    std::cout << "Executando A*..." << std::endl;
-    AlgorithmResults astar_result;
-    astar_result.name = "A*";
-    a_star_search(problem, astar_result);
-    results.push_back(astar_result);
-
-    // Imprimir resultados
-    printResults(results);
-
-    return 0;
-}
+#endif // COMPARADOR_ALGORITMOS_CPP
