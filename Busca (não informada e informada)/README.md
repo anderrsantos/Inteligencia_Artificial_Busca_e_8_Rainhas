@@ -60,11 +60,8 @@ INTELIGENCIA_ARTIFICIAL_BUSCA_E_8_RAINHAS/
 │   ├── src_comparador/
 │   │   ├── comparador_algoritmos.hpp          # Header com funções comparativas
 │   │   └── labirinto.txt                      # Labirinto usado nos testes comparativos
-│   └── main_comparar.cpp                  # Programa principal do comparador
-│
-├── README.md                              # Este arquivo (documentação principal)
-├── SOLUCAO_CODIFICACAO.md                 # Relatório complementar (documentação extra)
-└── .gitignore                             # Arquivos e pastas ignoradas pelo Git
+│   ├── main_comparar.cpp                  # Programa principal do comparador
+│   └── README.md                              # Este arquivo (documentação principal)
 
 ```
 
