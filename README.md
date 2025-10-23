@@ -1,44 +1,71 @@
 # Trabalho 1 - Busca no Labirinto (Não Informada e Informada)
 
 ## Descrição
-Implementação e comparação de algoritmos de busca aplicados ao problema do labirinto:
-- **Busca Não Informada**: BFS (Busca em Largura) e DFS (Busca em Profundidade)
-- **Busca Informada**: Busca Gulosa e A* (A-Estrela)
+
+Implementação e comparação de algoritmos de busca aplicados ao problema do **labirinto** em ambiente de grade:
+
+- **Busca Não Informada:**
+  - BFS (Busca em Largura)
+  - DFS (Busca em Profundidade)
+
+- **Busca Informada:**
+  - Busca Gulosa
+  - A* (A-Estrela)
+
+Ambos os algoritmos informados foram implementados com **duas heurísticas**:
+- **Distância de Manhattan**
+- **Distância Euclidiana**
+
 
 ## Estrutura do Projeto
 
 ```
-Inteligencia_Artificial_Busca_e_8_Rainhas-main/
-├── labirinto.txt                          # Arquivo de entrada do labirinto
-├── comparador_algoritmos.cpp              # Sistema unificado de comparação
-├── README.md                             # Este arquivo
-├── Busca (não informada e informada)/
+INTELIGENCIA_ARTIFICIAL_BUSCA_E_8_RAINHAS/
+├── .vscode/                               # Configurações do VSCode
+│
+├── Busca (não informada e informada)/     # Diretório principal dos algoritmos
+│   ├── informada/
+│   │   ├── A_Estrela/
+│   │   │   ├── data/
+│   │   │   │   └── labirinto.txt          # Mapa do labirinto usado no A*
+│   │   │   └── src/
+│   │   │       ├── A_Star.hpp             # Implementação do algoritmo A*
+│   │   │       └── main.cpp               # Programa principal A*
+│   │   │
+│   │   └── Busca Gulosa/
+│   │       ├── data/
+│   │       │   └── labirinto.txt          # Mapa usado pela busca gulosa
+│   │       └── src/
+│   │           ├── BG.hpp                 # Implementação da Busca Gulosa
+│   │           └── main.cpp               # Programa principal da Gulosa
+│   │
 │   ├── não informada/
-│   │   ├── BFS/
-│   │   │   ├── src/
-│   │   │   │   ├── BFS.hpp               # Implementação BFS
-│   │   │   │   └── main.cpp              # Programa principal BFS
-│   │   │   └── data/
-│   │   │       └── labirinto.txt         # Dados para BFS
-│   │   └── DFS/
-│   │       ├── src/
-│   │       │   ├── DFS.hpp               # Implementação DFS
-│   │       │   └── main.cpp              # Programa principal DFS
-│   │       └── data/
-│   │           └── labirinto.txt         # Dados para DFS
-│   └── informada/
-│       ├── Busca Gulosa/
-│       │   ├── src/
-│       │   │   ├── BG.hpp                # Implementação Busca Gulosa
-│       │   │   └── main.cpp              # Programa principal Gulosa
-│       │   └── data/
-│       │       └── labirinto.txt         # Dados para Gulosa
-│       └── A_Estrela/
-│           ├── src/
-│           │   ├── A_Star.hpp            # Implementação A*
-│           │   └── main.cpp              # Programa principal A*
-│           └── data/
-│               └── labirinto.txt         # Dados para A*
+│   │    ├── BFS/
+│   │    │   ├── data/
+│   │    │   │   └── labirinto.txt          # Dados para BFS
+│   │    │   └── src/
+│   │    │       ├── BFS.hpp                # Implementação da Busca em Largura
+│   │    │       └── main.cpp               # Programa principal BFS
+│   │    │
+│   │    └── DFS/
+│   │        ├── data/
+│   │        │   └── labirinto.txt          # Dados para DFS
+│   │        └── src/
+│   │            ├── DFS.hpp                # Implementação da Busca em Profundidade
+│   │            └── main.cpp               # Programa principal DFS
+│   │
+│   ├── out/
+│   │   └── comparador                         # Binário gerado pelo comparador
+│   │
+│   ├── src_comparador/
+│   │   ├── comparador_algoritmos.hpp          # Header com funções comparativas
+│   │   └── labirinto.txt                      # Labirinto usado nos testes comparativos
+│   └── main_comparar.cpp                  # Programa principal do comparador
+│
+├── README.md                              # Este arquivo (documentação principal)
+├── SOLUCAO_CODIFICACAO.md                 # Relatório complementar (documentação extra)
+└── .gitignore                             # Arquivos e pastas ignoradas pelo Git
+
 ```
 
 ## Formato do Labirinto
@@ -124,13 +151,13 @@ g++ -o out/comparador main_comparar.cpp
 ### 3. Busca Gulosa
 - **Completude**: Não (pode ficar presa em mínimos locais)
 - **Otimalidade**: Não (escolhe sempre a opção que parece melhor localmente)
-- **Heurística**: Distância de Manhattan
+- **Heurística**: Distância de Manhattan e Euclidiana
 - **Estrutura**: Fila de prioridade (ordenada por h(n))
 
 ### 4. A* (A-Estrela)
 - **Completude**: Sim (com heurística admissível)
 - **Otimalidade**: Sim (com heurística admissível e consistente)
-- **Heurística**: Distância de Manhattan (admissível para este problema)
+- **Heurística**: Distância de Manhattan e Euclidiana
 - **Função de Avaliação**: f(n) = g(n) + h(n)
 - **Estrutura**: Fila de prioridade (ordenada por f(n))
 
@@ -148,63 +175,121 @@ Para cada algoritmo, são medidas as seguintes métricas:
 
 ## Heurística Utilizada
 
-Para os algoritmos informados (Gulosa e A*), utilizamos a **Distância de Manhattan**:
+Para os algoritmos de busca informada (Busca Gulosa e A*), foram utilizadas duas funções heurísticas: a Distância de Manhattan e a Distância Euclidiana.
+Ambas estimam o custo restante até o objetivo a partir da posição atual.
+
+### Distância de Manhattan
+Utilizada por padrão nos algoritmos informados (Gulosa e A*), a Distância de Manhattan mede o custo em grids considerando apenas movimentos horizontais e verticais.
 
 ```cpp
 h(n) = |x_atual - x_objetivo| + |y_atual - y_objetivo|
 ```
 
-Esta heurística é:
-- **Admissível**: Nunca superestima o custo real até o objetivo
-- **Consistente**: h(n) ≤ c(n,n') + h(n') para todo sucessor n' de n
+Propriedades:
+- Admissível: nunca superestima o custo real até o objetivo.
+- Consistente: h(n) ≤ c(n,n') + h(n') para todo sucessor n' de n.
+- Ideal para: ambientes de grade com movimentos ortogonais (Norte, Sul, Leste, Oeste).
+
+### Distância Euclidiana
+A Distância Euclidiana considera o deslocamento direto entre o nó atual e o objetivo, representando o caminho “em linha reta”.
+É mais precisa em ambientes contínuos ou quando são permitidos movimentos diagonais.
+
+```cpp
+h(n) = sqrt((x_atual - x_objetivo)^2 + (y_atual - y_objetivo)^2)
+```
+
+Propriedades:
+- Produz estimativas mais realistas da distância ao objetivo.
+- Pode não ser perfeitamente consistente em grids sem diagonais.
+- Costuma reduzir o número de nós expandidos em relação à Manhattan.
 
 ## Exemplo de Saída
 
+
 ```
-Executando comparação de algoritmos de busca no labirinto...
+Executando comparação de algoritmos de busca...
 
 Executando BFS...
 Executando DFS...
-Executando Busca Gulosa...
-Executando A*...
+Executando Busca Gulosa (Manhattan)...
+Executando Busca Gulosa (Euclidiana)...
+Executando A* (Manhattan)...
+Executando A* (Euclidiana)...
 
-================================================================================
-                    RESULTADOS COMPARATIVOS
-================================================================================
-Algoritmo      Tempo (s)   Memória   Nós Ger.    Nós Exp.    Custo   Solução   Ótimo
---------------------------------------------------------------------------------
-BFS            0.000000    17        18          15          8       SIM       SIM
-DFS            0.000000    10        11          8           8       SIM       NÃO
-Gulosa         0.000000    11        11          9           8       SIM       NÃO
-A*             0.000000    11        11          9           8       SIM       SIM
-================================================================================
+==========================================================================================
+                 COMPARATIVO DE ALGORITMOS DE BUSCA
+==========================================================================================
+Algoritmo         Tempo (s)   Memória  Nós Ger.   Nós Exp.   Custo   Solução Ótimo  
+------------------------------------------------------------------------------------------
+BFS               0.000084    17        18          15          8       SIM       SIM     
+DFS               0.000033    10        11          8           8       SIM       NÃO    
+Gulosa-Manh       0.000024    11        11          9           8       SIM       NÃO    
+Gulosa-Eucl       0.000058    11        11          10          8       SIM       NÃO    
+A*-Manh           0.000037    11        11          9           8       SIM       SIM     
+A*-Eucl           0.000044    14        14          13          8       SIM       SIM     
+==========================================================================================
 
 ANÁLISE COMPARATIVA:
 
-• Algoritmo mais rápido: BFS (0.000000s)
-• Algoritmo com menor uso de memória: DFS (10 nós)
-• Algoritmo(s) ótimo(s): BFS A* (custo 8)
+• Mais rápido: Gulosa-Manh (0.000024 s)
+• Menor uso de memória: DFS (10 nós)
+• Custo ótimo (menor caminho): 8 — obtido por BFS DFS Gulosa-Manh Gulosa-Eucl A*-Manh A*-Eucl 
+
+==========================================================================================
 ```
 
-## Análise dos Resultados
+# Análise dos Resultados
 
-### Comparação Não Informados (BFS vs DFS)
-- **BFS**: Garantiu otimalidade (custo 8) mas usou mais memória (17 nós)
-- **DFS**: Usou menos memória (10 nós) e encontrou solução ótima por sorte neste caso
-- **BFS**: Expandiu mais nós (15) para garantir otimalidade
-- **DFS**: Mais eficiente em nós expandidos (8) mas sem garantia de otimalidade
+## Comparação Não Informados (BFS vs DFS)
 
-### Comparação Informados (Gulosa vs A*)
-- **A***: Garantiu otimalidade (custo 8) com mesma eficiência da Gulosa (9 nós expandidos)
-- **Gulosa**: Mesma performance que A* neste labirinto específico, mas sem garantia
-- **Ambos**: Usaram heurística Manhattan eficientemente (11 nós de memória)
-- **A***: Preferível por combinar eficiência com garantia de otimalidade
+### BFS
+- Garantiu otimalidade (custo 8), mas usou mais memória (17 nós).  
+- Expandiu mais nós (15) para garantir a solução ótima e apresentou maior tempo de execução em relação à DFS.
 
-### Impacto da Heurística Manhattan
-- **Algoritmos informados**: Expandiram significativamente menos nós (9 vs 8-15)
-- **Admissibilidade**: A* garantiu otimalidade com h(n) ≤ h*(n)
-- **Consistência**: h(n) ≤ c(n,n') + h(n') sempre respeitada
-- **Eficiência**: Heurística guiou busca diretamente ao objetivo
+### DFS
+- Usou menos memória (10 nós) e encontrou uma solução ótima por sorte neste caso.  
+- Foi mais eficiente em tempo e nós expandidos (8), mas sem garantia de otimalidade em cenários gerais.
+
+## Comparação Informados (Gulosa vs A*)
+
+### A*
+- Garantiu otimalidade (custo 8) com eficiência próxima à Busca Gulosa.  
+- Utilizando as heurísticas Manhattan e Euclidiana, o A\* apresentou equilíbrio entre tempo, memória e qualidade da solução.  
+- A versão com Manhattan foi ligeiramente mais rápida, enquanto a com Euclidiana teve estimativas mais precisas, porém com custo computacional um pouco maior.
+
+### Gulosa
+- Apresentou o menor tempo de execução, especialmente com a heurística Manhattan, priorizando os nós mais próximos ao objetivo.  
+- Entretanto, não garante otimalidade, já que desconsidera o custo acumulado.  
+- A variação Euclidiana também encontrou o mesmo custo (8), mas com leve aumento em tempo e número de nós expandidos.
+
+## Ambos
+- As buscas informadas mostraram-se muito mais eficientes que as não informadas, reduzindo significativamente o número de nós expandidos e o uso de memória.  
+- O A\* é preferível quando a solução ótima é essencial, enquanto a Gulosa é vantajosa quando o tempo de resposta é prioridade.
+
+
+
+## Impacto das Heurísticas (Manhattan e Euclidiana)
+
+### Distância Manhattan
+- Admissível e consistente em grades com movimentos ortogonais.  
+- Apresentou excelente desempenho, guiando o A\*** de forma eficiente até o objetivo.
+
+### Distância Euclidiana
+- Também admissível, fornecendo uma estimativa mais realista da distância real em cenários com caminhos mais abertos.  
+- Exigiu mais cálculos devido à raiz quadrada, resultando em leve aumento no tempo e memória, mas manteve a otimalidade no A\*.
+
+
+
+## Eficiência Geral
+
+- Os algoritmos informados (Gulosa e A\*), com ambas as heurísticas, expandiram menos nós (8–10) do que as buscas não informadas (BFS e DFS, 15–18).  
+- Ambas as heurísticas respeitaram as propriedades de admissibilidade e consistência, garantindo correção teórica e bom desempenho.
+
+
+
+
+
+
 
 ## Dependências
 - Compilador C++11 ou superior
@@ -225,11 +310,20 @@ chcp 65001
 export LANG=en_US.UTF-8
 ```
 
-### Interpretação dos Resultados Específicos
-- **Tempo 0.000000s**: Normal para labirinto pequeno - execução muito rápida (microssegundos)
-- **Custo ótimo 8**: Caminho mínimo de S(0,0) até G(4,4) considerando obstáculos
-- **Todos encontraram custo 8**: Labirinto permite múltiplos caminhos ótimos
-- **DFS encontrou ótimo**: Sorte devido à ordem de exploração e simplicidade do labirinto
-- **Memória**: BFS (17) > Gulosa/A* (11) > DFS (10) - conforme esperado teoricamente
-- **Nós expandidos**: DFS (8) < Gulosa/A* (9) < BFS (15) - heurística mostrou eficiência
+## Contato
 
+<table align="center">
+  <tr>
+    <th>Participantes</th>
+    <th>Contato</th>
+  </tr>
+  <tr>
+    <td>Maíra Beatriz de Almeida Lacerda</td>
+    <td><a href="https://github.com/mairaallacerda"><img align="center" height="20px" width="90px" src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"/> </td>
+  </tr>
+  <tr>
+      <td>Anderson Rodrigues dos Santos</td>
+      <td><a href="https://github.com/anderrsantos"><img align="center" height="20px" width="90px" src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"/> </td>
+
+  </tr>
+</table>
