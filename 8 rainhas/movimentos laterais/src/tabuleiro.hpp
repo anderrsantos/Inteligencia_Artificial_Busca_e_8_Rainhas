@@ -7,6 +7,7 @@
 #include <ctime>
 
 
+
 struct Movimento{
     int nova_linha;
     int coluna;
